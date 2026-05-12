@@ -44,7 +44,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # Entrar a la carpeta donde tengas el docker-compose.yml 
-            # Si no lo tienes, puedes correrlo directo con docker run
-            docker compose pull
-            docker compose up -d
+            sudo docker pull ${{ secrets.DOCKER_HUB_REPO_BACKEND_DESPACHOS }}:latest
+            sudo docker stop back-despachos  true
+            sudo docker rm back-despachos  true
+            sudo docker run -d --name back-despachos -p 8081:8080 ${{ secrets.DOCKER_HUB_REPO_BACKEND_DESPACHOS }}:latest
