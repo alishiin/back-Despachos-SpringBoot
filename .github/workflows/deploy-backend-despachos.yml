@@ -8,7 +8,6 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,5 +33,18 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_REPO_BACKEND_DESPACHOS }}:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_REPO_BACKEND_DESPACHOS }}:buildcache,mode=max
 
-      - name: Image pushed successfully
-        run: echo "✅ Backend Despachos image pushed to Docker Hub as alishiin/back-despachos-springboot:latest"
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST_BACKEND_DESPACHOS }} # La IP PÃºblica de la 3ra EC2
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # Entrar a la carpeta donde tengas el docker-compose.yml 
+            # Si no lo tienes, puedes correrlo directo con docker run
+            docker compose pull
+            docker compose up -d
